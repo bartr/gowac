@@ -1,0 +1,7 @@
+FROM alpine:latest
+
+EXPOSE 8080
+
+COPY samplewebhook .
+
+CMD ./samplewebhook -logpath=/home/LogFiles/

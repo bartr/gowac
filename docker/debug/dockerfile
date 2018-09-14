@@ -1,0 +1,24 @@
+FROM golang:1.11-stretch
+
+# add SSHD support to the base go container
+RUN echo "root:Docker!" | chpasswd && \
+apt-get update && \
+apt-get install -y --no-install-recommends openssh-server curl nano wget && \
+apt-get upgrade -y
+
+WORKDIR /root
+EXPOSE 2222 8080
+ENV GOPATH=/root/gowac
+
+COPY sshd_config /etc/ssh/
+COPY .bashrc .
+COPY runapp.sh .
+
+# get the code from git repo
+RUN cd /root && \
+git clone -b master https://github.com/bartr/gowac  && \
+cd /root/gowac/src/gowac && \
+go get ./... && \
+cd /root
+
+CMD ./runapp.sh
