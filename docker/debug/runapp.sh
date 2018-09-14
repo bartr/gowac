@@ -8,9 +8,9 @@ cd /root
 
 while :
 do
-  go build gowac
+  go build -o app gowac
 
-  ./gowac
+  ./app
   sleep .1
-  rm -f gowac
+  rm -f app
 done
