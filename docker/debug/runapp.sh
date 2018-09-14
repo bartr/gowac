@@ -2,15 +2,14 @@
 service ssh start
 
 # git the latest code
-cd /root/gowac
+cd /root/gowac/src/gowac
 git pull
-cd /root
 
 while :
 do
-  go build -o app gowac
+  go build gowac
 
-  ./app
+  ./gowac
   sleep .1
-  rm -f app
+  rm -f gowac
 done
