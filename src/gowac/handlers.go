@@ -13,18 +13,17 @@ func httpDefault(w http.ResponseWriter, r *http.Request) {
 
 	s := strings.ToLower(r.URL.Path)
 
-	// for debug, turn caching off
-	w.Header().Add("Cache-Control", "no-cache")
-
 	// handle default web page
 	if s == "/" || strings.HasPrefix(s, "/index.") || strings.HasPrefix(s, "/default.") {
 		http.ServeFile(w, r, "www/default.html")
+		w.Header().Add("Cache-Control", "no-cache")
 		return
 	}
 
 	// handle /home/LogFiles browsing
 	if strings.HasPrefix(s, "/home") && strings.HasPrefix(logPath, "/home/") {
 		http.ServeFile(w, r, r.URL.Path)
+		w.Header().Add("Cache-Control", "no-cache")
 		return
 	}
 
@@ -36,6 +35,7 @@ func httpDefault(w http.ResponseWriter, r *http.Request) {
 
 	// serve the file from the www directory
 	http.ServeFile(w, r, "www"+s)
+	w.Header().Add("Cache-Control", "no-cache")
 }
 
 // use http dump request to show the full request
