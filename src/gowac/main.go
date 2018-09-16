@@ -8,6 +8,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/bartr/m4/logb"
 )
 
 var logPath = "/home/LogFiles/"
@@ -19,14 +21,14 @@ func main() {
 
 	// setup handlers
 	http.HandleFunc("/requests", httpDumpRequests)
-	http.Handle("/", logHandler(rawRequestHandler(http.HandlerFunc(httpDefault))))
+	http.Handle("/", logb.Handler(rawRequestHandler(http.HandlerFunc(httpDefault))))
 
 	// setup log files
 	if err := setupAppLog(buildFullLogName(logPath, "app", ".log")); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := setupLogb(buildFullLogName(logPath, "request", ".log")); err != nil {
+	if err := logb.SetLogFile(buildFullLogName(logPath, "request", ".log")); err != nil {
 		log.Fatal(err)
 	}
 

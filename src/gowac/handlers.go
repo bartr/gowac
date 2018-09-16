@@ -13,6 +13,9 @@ func httpDefault(w http.ResponseWriter, r *http.Request) {
 
 	s := strings.ToLower(r.URL.Path)
 
+	// for debug, turn caching off
+	w.Header().Add("Cache-Control", "no-cache")
+
 	// handle default web page
 	if s == "/" || strings.HasPrefix(s, "/index.") || strings.HasPrefix(s, "/default.") {
 		http.ServeFile(w, r, "www/default.html")
@@ -44,10 +47,13 @@ func httpDumpRequests(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(200)
 	w.Header().Add("Content-Type", "text/plain")
+	// for debug, turn caching off
+	w.Header().Add("Cache-Control", "no-cache")
 	w.Write([]byte(s))
 }
 
 var requests []string
+var maxLength = 10
 
 // rawRequestHandler - http handler that saves the raw request
 // this handler can be chained with other handlers
