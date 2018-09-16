@@ -22,10 +22,16 @@ func main() {
 	http.Handle("/", logHandler(rawRequestHandler(http.HandlerFunc(httpDefault))))
 
 	// setup log files
-	setupAppLog(buildFullLogName(logPath, "app", ".log"))
-	setupLogb(buildFullLogName(logPath, "request", ".log"))
+	if err := setupAppLog(buildFullLogName(logPath, "app", ".log")); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := setupLogb(buildFullLogName(logPath, "request", ".log")); err != nil {
+		log.Fatal(err)
+	}
 
 	log.Println("Listening on", port)
+	log.Println("Logging to", logPath)
 
 	// run the web server
 	if err := http.ListenAndServe(":"+strconv.Itoa(port), nil); err != nil {
