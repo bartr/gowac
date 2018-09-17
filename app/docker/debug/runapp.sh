@@ -1,16 +1,17 @@
 #!/bin/sh
 service ssh start
 
-# git the latest code
+# if you don't run from the app directory, make sure to copy www/
 cd /root/go/src/gowac/app
+
+# git the latest code
 git pull
-cd /root
 
 while :
 do
-  go build gowac/app -o ./gowac
+  go build
 
-  ./gowac
+  ./app
   sleep .1
-  rm -f gowac
+  rm -f app
 done
