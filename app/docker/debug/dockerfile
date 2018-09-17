@@ -6,18 +6,19 @@ apt-get update && \
 apt-get install -y --no-install-recommends openssh-server curl nano wget && \
 apt-get upgrade -y
 
-WORKDIR /root
+WORKDIR /root/go/src/gowac
 EXPOSE 2222 8080
-ENV GOPATH=/root/gowac
+ENV GOPATH=/root/go
 
 COPY sshd_config /etc/ssh/
 COPY .bashrc .
 COPY runapp.sh .
 
 # get the code from git repo
-RUN cd /root && \
+RUN mkdir -p /root/go/src && \
+cd /root/go/src && \
 git clone -b master https://github.com/bartr/gowac  && \
-cd /root/gowac && \
+cd /gowac/app && \
 go get -d && \
 cd /root
 
