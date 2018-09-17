@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bartr/m4/logb"
+	"github.com/bartr/gohandlers/logb"
 )
 
 var logPath = "/home/LogFiles/"
