@@ -3,5 +3,9 @@
 # this is the build command executed by the CI/CD pipeline
 # it is only necessary to run build if you're building the docker image manually
 
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo m4/samplewebhook
+cd ../..
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo
 
+cd docker/release
+
+cp ../../gowac .

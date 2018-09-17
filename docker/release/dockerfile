@@ -2,6 +2,6 @@ FROM alpine:latest
 
 EXPOSE 8080
 
-COPY samplewebhook .
+COPY gowac .
 
-CMD ./samplewebhook -logpath=/home/LogFiles/
+CMD ./gowac

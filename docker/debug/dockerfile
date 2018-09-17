@@ -17,8 +17,8 @@ COPY runapp.sh .
 # get the code from git repo
 RUN cd /root && \
 git clone -b master https://github.com/bartr/gowac  && \
-cd /root/gowac/src/gowac && \
-go get ./... && \
+cd /root/gowac && \
+go get -d && \
 cd /root
 
 CMD ./runapp.sh
