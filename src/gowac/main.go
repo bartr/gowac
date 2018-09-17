@@ -10,8 +10,10 @@ import (
 	"strings"
 
 	"github.com/bartr/gohandlers/logb"
+	"github.com/bartr/gohandlers/rawrequest"
 )
 
+// this is the App Service shared CIFS folder
 var logPath = "/home/LogFiles/"
 var port = 8080
 
@@ -20,17 +22,8 @@ func main() {
 	parseCommandLine()
 
 	// setup handlers
-	http.HandleFunc("/requests", httpDumpRequests)
-	http.Handle("/", logb.Handler(rawRequestHandler(http.HandlerFunc(httpDefault))))
-
-	// setup log files
-	if err := setupAppLog(buildFullLogName(logPath, "app", ".log")); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := logb.SetLogFile(buildFullLogName(logPath, "request", ".log")); err != nil {
-		log.Fatal(err)
-	}
+	http.HandleFunc("/requests", rawrequest.DisplayRawRequests)
+	http.Handle("/", logb.Handler(rawrequest.Handler(http.HandlerFunc(rootHandler))))
 
 	log.Println("Listening on", port)
 	log.Println("Logging to", logPath)
@@ -65,6 +58,15 @@ func parseCommandLine() {
 		log.Fatal("invalid port")
 	}
 	port = *p
+
+	// setup log files
+	if err := setupAppLog(buildFullLogName(logPath, "app", ".log")); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := logb.SetLogFile(buildFullLogName(logPath, "request", ".log")); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // setup log multi writer
@@ -89,7 +91,7 @@ func setupAppLog(logFile string) error {
 
 // build the full log file name
 // app services sets the WEBSITE_ROLE_INSTANCE_ID environment variable
-// since we're writing to the CIFS share, we need to differentiate log file names
+//   since we're writing to the CIFS share, we need to differentiate log file names
 //   in case there are multiple instances running
 func buildFullLogName(logPath string, logPrefix string, logExtension string) string {
 	if !strings.HasSuffix(logPath, "/") {
@@ -109,4 +111,34 @@ func buildFullLogName(logPath string, logPrefix string, logExtension string) str
 	}
 
 	return fileName + logExtension
+}
+
+// handle all requests
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+
+	s := strings.ToLower(r.URL.Path)
+
+	// handle default web page
+	if s == "/" || strings.HasPrefix(s, "/index.") || strings.HasPrefix(s, "/default.") {
+		http.ServeFile(w, r, "www/default.html")
+		w.Header().Add("Cache-Control", "no-cache")
+		return
+	}
+
+	// handle /home/LogFiles browsing
+	if strings.HasPrefix(s, "/home") && strings.HasPrefix(logPath, "/home/") {
+		http.ServeFile(w, r, r.URL.Path)
+		w.Header().Add("Cache-Control", "no-cache")
+		return
+	}
+
+	// don't allow directory browsing (unless you want to)
+	if strings.HasSuffix(s, "/") {
+		w.WriteHeader(403)
+		return
+	}
+
+	// serve the file from the www directory
+	http.ServeFile(w, r, "www"+s)
+	w.Header().Add("Cache-Control", "no-cache")
 }
