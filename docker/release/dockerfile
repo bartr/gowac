@@ -3,5 +3,6 @@ FROM alpine:latest
 EXPOSE 8080
 
 COPY gowac .
+COPY www/ www/
 
 CMD ./gowac

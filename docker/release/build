@@ -4,8 +4,10 @@
 # it is only necessary to run build if you're building the docker image manually
 
 cd ../..
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o docker/release/gowac
 
 cd docker/release
 
-cp ../../gowac .
+rm -rf www
+cp -r ../../www/ .
+
