@@ -3,7 +3,7 @@
 # this is the build command executed by the CI/CD pipeline
 # it is only necessary to run build if you're building the docker image manually
 
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./gowac ../../*.go
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./gowac gowac/app
 
 rm -rf www
 cp -r ../../www/ .
