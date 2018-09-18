@@ -41,12 +41,6 @@ func main() {
 
 // parseCommandLine -port and -logpath are supported
 func parseCommandLine() {
-	// /home/LogFiles is the shared CIFS directory on App Services
-	// log in current directory if not running in App Services
-	if _, err := os.Stat(logPath); err != nil {
-		logPath = "./"
-	}
-
 	// parse flags
 	lfp := flag.String("logpath", "", "path to log files")
 	p := flag.Int("port", port, "port to listen on")
@@ -55,6 +49,13 @@ func parseCommandLine() {
 	// set log path
 	if *lfp != "" {
 		logPath = *lfp
+	}
+
+	// /home/LogFiles is the shared CIFS directory on App Services
+	// log in current directory if not running in App Services
+	// TODO - do we really want to do this?
+	if _, err := os.Stat(logPath); err != nil {
+		logPath = "./"
 	}
 
 	// set port
@@ -96,6 +97,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 	// handle /home/LogFiles browsing
 	if strings.HasPrefix(s, "/home") && strings.HasPrefix(logPath, "/home/") {
+		// TODO - don't allow /../ in path
 		http.ServeFile(w, r, r.URL.Path)
 		w.Header().Add("Cache-Control", "no-cache")
 		return
@@ -106,6 +108,8 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
+
+	// TODO - don't allow /../ in path
 
 	// serve the file from the www directory
 	http.ServeFile(w, r, "www"+s)
