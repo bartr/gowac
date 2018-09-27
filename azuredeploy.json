@@ -1,0 +1,129 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "The region where resources are deployed"
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of App Service Plan on Linux"
+      }
+    },
+    "appServicePlanSkuSize": {
+      "type": "string",
+      "metadata": {
+        "description": "SKU size of App Service Plan on Linux"
+      },
+      "allowedValues": [
+          "B1",
+          "B2",
+          "B3",
+          "S1",
+          "S2",
+          "S3",
+          "P1v2",
+          "P2v2",
+          "P3v2"
+      ],
+      "defaultValue": "S1"
+    },
+
+    "webAppName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of Web App on Linux"
+      }
+    },
+    "containerImageName": {
+      "type": "string",
+      "metadata": {
+        "description": "image name and optional tag for container"
+      },
+      "defaultValue": "bartr/gowac:latest"
+    }
+  },
+  "variables": {
+    "skuFirstLetter": "[first(parameters('appServicePlanSkuSize'))]",
+    "appServicePlan": {
+      "name": "[parameters('appServicePlanName')]",
+      "apiVersion": "[providers('Microsoft.Web', 'serverfarms').apiVersions[0]]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('appServicePlanSkuSize')]",
+        "tier": "[if(equals(variables('skuFirstLetter'), 'B'), 'Basic', if(equals(variables('skuFirstLetter'), 'P'), 'Premium', 'Standard'))]",
+        "size": "[parameters('appServicePlanSkuSize')]"
+      }
+    },
+    "webApp": {
+      "name": "[parameters('webAppName')]",
+      "apiVersion": "[providers('Microsoft.Web', 'sites').apiVersions[0]]",
+      "location": "[parameters('location')]",
+      "kind": "app,linux,container"
+    }
+  },
+  "resources": [
+    {
+      "comments": "### RESOURCE - APP SERVICE PLAN ###",
+      "apiVersion": "[variables('appServicePlan').apiVersion]",
+      "type": "Microsoft.Web/serverfarms",
+      "name": "[variables('appServicePlan').name]",
+      "location": "[variables('appServicePlan').location]",
+      "kind": "linux",
+      "sku": {
+        "name": "[variables('appServicePlan').sku.name]",
+        "tier": "[variables('appServicePlan').sku.tier]",
+        "size": "[variables('appServicePlan').sku.size]"
+      },
+      "properties": {
+        "name": "[variables('appServicePlan').name]",
+        "reserved": true
+      }
+    },
+    {
+      "comments": "### RESOURCE - WEB APP ###",
+      "apiVersion": "[variables('webApp').apiVersion]",
+      "type": "Microsoft.Web/sites",
+      "name": "[variables('webApp').name]",
+      "location": "[variables('webApp').location]",
+      "kind": "[variables('webApp').kind]",
+      "dependsOn": [
+        "[variables('appServicePlan').name]"
+      ],
+      "properties": {
+        "name": "[variables('webApp').name]",
+        "reserved": true,
+        "clientAffinityEnabled": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlan').name)]",
+        "siteConfig": {
+          "linuxFxVersion": "[concat('DOCKER|', parameters('containerImageName'))]",
+          "appSettings": [
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "true"
+            },
+            {
+              "name": "DOCKER_ENABLE_CI",
+              "value": "true"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "webAppUrl": {
+      "type": "string",
+      "value": "[concat('https://', variables('webApp').name, '.azurewebsites.net')]"
+    },
+    "webhookUri": {
+      "type": "string",
+      "value": "[reference(concat('Microsoft.Web/sites/', variables('webApp').name)).publishingcredentials.scmUri]"
+    }
+  }
+}
