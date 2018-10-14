@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -22,7 +23,7 @@ func main() {
 	parseCommandLine()
 
 	// this sets the log files for app and requests
-	if err := setupLogging(logPath); err != nil {
+	if err := setupLogs(logPath); err != nil {
 		log.Fatal(err)
 	}
 
@@ -67,18 +68,37 @@ func parseCommandLine() {
 	port = *p
 }
 
-// setupLogging - setup the app and request log files
-func setupLogging(logPath string) error {
-
-	// setup app log
-	if err := logb.SetupAppLog(logPath, "app", ".log"); err != nil {
+// setupLogs - sets up the multi writer for the log files
+func setupLogs(logPath string) error {
+	// make the log directory if it doesn't exist
+	if err := os.MkdirAll(logPath, 0666); err != nil {
 		return err
 	}
 
-	// setup request log
-	if err := logb.SetLogFile(logPath, "request", ".log"); err != nil {
+	// prepend date and time to log entries
+	log.SetFlags(log.Ldate | log.Ltime)
+
+	fileName := logPath + "app"
+
+	// use instance ID to differentiate log files between instances in App Services
+	if iid := os.Getenv("WEBSITE_ROLE_INSTANCE_ID"); iid != "" {
+		fileName += "_" + strings.TrimSpace(iid)
+	}
+
+	fileName += ".log"
+
+	// open the log file
+
+	logFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
 		return err
 	}
+
+	// setup a multiwriter to log to file and stdout
+	wrt := io.MultiWriter(os.Stdout, logFile)
+	log.SetOutput(wrt)
+	logb.Logger.SetOutput(wrt)
 
 	return nil
 }

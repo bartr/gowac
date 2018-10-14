@@ -6,4 +6,4 @@
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./gowac gowac/app
 
 rm -rf www
-cp -r ../../www/ .
+cp -r ../../app/www/ .
