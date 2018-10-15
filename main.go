@@ -22,13 +22,15 @@ func main() {
 
 	parseCommandLine()
 
-	// this sets the log files for app and requests
+	// this sets the log file
 	if err := setupLogs(logPath); err != nil {
 		log.Fatal(err)
 	}
 
-	// setup handlers
+	// the RawRequest handler shows the last 10 requests to the web server - great for debugging
 	http.HandleFunc("/requests", rawrequest.DisplayRawRequests)
+
+	// handle everything else
 	http.Handle("/", logb.Handler(rawrequest.Handler(http.HandlerFunc(rootHandler))))
 
 	log.Println("Listening on", port)
