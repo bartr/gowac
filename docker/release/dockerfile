@@ -1,8 +1,8 @@
 FROM alpine:latest
 
-EXPOSE 8080
+EXPOSE 80
 
 COPY gowac .
 COPY www/ www/
 
-CMD ./gowac
+CMD ./gowac -port 80

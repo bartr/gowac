@@ -18,7 +18,7 @@ COPY runapp.sh /root
 RUN mkdir -p /root/go/src && \
 cd /root/go/src && \
 git clone -b master https://github.com/bartr/gowac  && \
-cd gowac/app && \
+cd gowac && \
 go get -d && \
 cd /root
 
