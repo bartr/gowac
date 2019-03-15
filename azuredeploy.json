@@ -2,13 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "The region where resources are deployed"
-      },
-      "defaultValue": "[resourceGroup().location]"
-    },
     "appServicePlanName": {
       "type": "string",
       "metadata": {
@@ -21,15 +14,11 @@
         "description": "SKU size of App Service Plan on Linux"
       },
       "allowedValues": [
+          "F1",
+          "D1",
           "B1",
-          "B2",
-          "B3",
           "S1",
-          "S2",
-          "S3",
-          "P1v2",
-          "P2v2",
-          "P3v2"
+          "S2"
       ],
       "defaultValue": "S1"
     },
@@ -53,17 +42,17 @@
     "appServicePlan": {
       "name": "[parameters('appServicePlanName')]",
       "apiVersion": "[providers('Microsoft.Web', 'serverfarms').apiVersions[0]]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "sku": {
         "name": "[parameters('appServicePlanSkuSize')]",
-        "tier": "[if(equals(variables('skuFirstLetter'), 'B'), 'Basic', if(equals(variables('skuFirstLetter'), 'P'), 'Premium', 'Standard'))]",
+        "tier": "[if(equals(variables('skuFirstLetter'), 'B'), 'Basic', if(equals(variables('skuFirstLetter'), 'F'), 'Free', if(equals(variables('skuFirstLetter'), 'D'), 'Shared', 'Standard'))]",
         "size": "[parameters('appServicePlanSkuSize')]"
       }
     },
     "webApp": {
       "name": "[parameters('webAppName')]",
       "apiVersion": "[providers('Microsoft.Web', 'sites').apiVersions[0]]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "kind": "app,linux,container"
     }
   },
@@ -73,7 +62,7 @@
       "apiVersion": "[variables('appServicePlan').apiVersion]",
       "type": "Microsoft.Web/serverfarms",
       "name": "[variables('appServicePlan').name]",
-      "location": "[variables('appServicePlan').location]",
+      "location": "[resourceGroup().location]",
       "kind": "linux",
       "sku": {
         "name": "[variables('appServicePlan').sku.name]",
@@ -90,7 +79,7 @@
       "apiVersion": "[variables('webApp').apiVersion]",
       "type": "Microsoft.Web/sites",
       "name": "[variables('webApp').name]",
-      "location": "[variables('webApp').location]",
+      "location": "[resourceGroup().location]",
       "kind": "[variables('webApp').kind]",
       "dependsOn": [
         "[variables('appServicePlan').name]"
@@ -121,7 +110,7 @@
       "type": "string",
       "value": "[concat('https://', variables('webApp').name, '.azurewebsites.net')]"
     },
-    "webhookUri": {
+    "webHookUri": {
       "type": "string",
       "value": "[reference(concat('Microsoft.Web/sites/', variables('webApp').name)).publishingcredentials.scmUri]"
     }
