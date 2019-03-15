@@ -45,7 +45,7 @@
       "location": "[resourceGroup().location]",
       "sku": {
         "name": "[parameters('appServicePlanSkuSize')]",
-        "tier": "[if(equals(variables('skuFirstLetter'), 'B'), 'Basic', if(equals(variables('skuFirstLetter'), 'F'), 'Free', if(equals(variables('skuFirstLetter'), 'D'), 'Shared', 'Standard'))]",
+        "tier": "[if(equals(variables('skuFirstLetter'), 'B'), 'Basic', if(equals(variables('skuFirstLetter'), 'F'), 'Free', if(equals(variables('skuFirstLetter'), 'D'), 'Shared', 'Standard')))]",
         "size": "[parameters('appServicePlanSkuSize')]"
       }
     },
