@@ -102,10 +102,6 @@
     "webAppUrl": {
       "type": "string",
       "value": "[concat('https://', variables('webApp').name, '.azurewebsites.net')]"
-    },
-    "webHookUri": {
-      "type": "string",
-      "value": "[reference(concat('Microsoft.Web/sites/', variables('webApp').name)).publishingcredentials.scmUri]"
     }
   }
 }
