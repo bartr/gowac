@@ -33,7 +33,7 @@
   "variables": {
     "skuFirstLetter": "[first(parameters('appServicePlanSkuSize'))]",
     "appServicePlan": {
-      "name": "[variables('webApp').name]",
+      "name": "[concat(parameters('webAppName'),'-plan')]",
       "apiVersion": "[providers('Microsoft.Web', 'serverfarms').apiVersions[0]]",
       "location": "[resourceGroup().location]",
       "sku": {
