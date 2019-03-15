@@ -2,20 +2,19 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "appServicePlanName": {
+    "webAppName": {
       "type": "string",
       "metadata": {
-        "description": "Name of App Service Plan on Linux"
+        "description": "Name of Web App on Linux"
       }
     },
+
     "appServicePlanSkuSize": {
       "type": "string",
       "metadata": {
         "description": "SKU size of App Service Plan on Linux"
       },
       "allowedValues": [
-          "F1",
-          "D1",
           "B1",
           "S1",
           "S2"
@@ -23,12 +22,6 @@
       "defaultValue": "S1"
     },
 
-    "webAppName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of Web App on Linux"
-      }
-    },
     "containerImageName": {
       "type": "string",
       "metadata": {
@@ -40,12 +33,12 @@
   "variables": {
     "skuFirstLetter": "[first(parameters('appServicePlanSkuSize'))]",
     "appServicePlan": {
-      "name": "[parameters('appServicePlanName')]",
+      "name": "[variables('webApp').name]",
       "apiVersion": "[providers('Microsoft.Web', 'serverfarms').apiVersions[0]]",
       "location": "[resourceGroup().location]",
       "sku": {
         "name": "[parameters('appServicePlanSkuSize')]",
-        "tier": "[if(equals(variables('skuFirstLetter'), 'B'), 'Basic', if(equals(variables('skuFirstLetter'), 'F'), 'Free', if(equals(variables('skuFirstLetter'), 'D'), 'Shared', 'Standard')))]",
+        "tier": "[if(equals(variables('skuFirstLetter'), 'B'), 'Basic', 'Standard')]",
         "size": "[parameters('appServicePlanSkuSize')]"
       }
     },
