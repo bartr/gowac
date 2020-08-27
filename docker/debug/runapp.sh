@@ -9,7 +9,7 @@ do
   git pull
   go build
 
-  ./gowac -port 80
+  ./gowac
   sleep .1
   rm -f gowac
 done
