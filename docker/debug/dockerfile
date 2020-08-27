@@ -1,4 +1,4 @@
-FROM golang:1.11-stretch
+FROM golang:buster
 
 # add SSHD support to the base go container
 RUN echo "root:Docker!" | chpasswd && \
