@@ -2,4 +2,4 @@
 # makes the SSH shell a little more usable
 
 alias ls='ls --color=auto'
-alias ll='ls --color=auto -aL'
+alias ll='ls --color=auto -alF'
